@@ -50,6 +50,8 @@ async def _clear_(chat_id):
 
 class Call(PyTgCalls):
     def __init__(self):
+        self.volume = 100  # مقدار پیش‌فرض صدا
+        
         self.userbot1 = Client(
             name="PRINCEAss1",
             api_id=config.API_ID,
@@ -100,6 +102,35 @@ class Call(PyTgCalls):
             self.userbot5,
             cache_duration=100,
         )
+
+    async def set_call_volume(self, chat_id: int, volume: int):
+        """Set volume of group call"""
+        try:
+            # پیدا کردن assistant فعال برای این چت
+            assistant = await self.get_assistant(chat_id)
+            if assistant == 1:
+                await self.one.change_volume_call(chat_id, volume)
+            elif assistant == 2:
+                await self.two.change_volume_call(chat_id, volume)
+            elif assistant == 3:
+                await self.three.change_volume_call(chat_id, volume)
+            elif assistant == 4:
+                await self.four.change_volume_call(chat_id, volume)
+            elif assistant == 5:
+                await self.five.change_volume_call(chat_id, volume)
+            
+            self.volume = volume
+            return True
+        except Exception as e:
+            print(f"Error changing volume: {str(e)}")
+            return False
+
+    async def get_assistant(self, chat_id: int) -> int:
+        """Get the active assistant number for a chat"""
+        # این متد باید بر اساس منطق ربات شما پیاده‌سازی شود
+        # برای مثال می‌تونید از یک دیکشنری یا دیتابیس استفاده کنید
+        # که نگه می‌داره هر چت با کدوم اکانت اسیستنت در حال پخش هست
+        return 1  # فعلاً به طور پیش‌فرض اسیستنت 1 رو برمی‌گردونه
 
     async def pause_stream(self, chat_id: int):
         assistant = await group_assistant(self, chat_id)
@@ -279,6 +310,54 @@ class Call(PyTgCalls):
         )
         await asyncio.sleep(0.2)
         await assistant.leave_group_call(config.LOGGER_ID)
+    
+    async def set_call_volume(self, chat_id: int, volume: int):
+        """Set volume of group call"""
+        try:
+            await self.pytgcalls.change_volume_call(
+                chat_id,
+                volume
+            )
+            return True
+        except Exception as e:
+            print(f"Error changing volume: {str(e)}")
+            return False    
+    
+    async def join_call(
+        self,
+        chat_id: int,
+        original_chat_id: int,
+        link,
+        video: Union[bool, str] = None,
+        image: Union[bool, str] = None,
+    ):
+        assistant = await group_assistant(self, chat_id)
+        language = await get_lang(chat_id)
+        _ = get_string(language)
+        if video:
+            stream = AudioVideoPiped(
+                link,
+                audio_parameters=HighQualityAudio(),
+                video_parameters=MediumQualityVideo(),
+                additional_ffmpeg_parameters=f"-volume {self.volume}",  # اضافه کردن پارامتر volume
+            )
+        else:
+            stream = AudioPiped(
+                link,
+                audio_parameters=HighQualityAudio(),
+                additional_ffmpeg_parameters=f"-volume {self.volume}",  # اضافه کردن پارامتر volume
+            )
+        
+        try:
+            await assistant.join_group_call(
+                chat_id,
+                stream,
+                stream_type=StreamType().pulse_stream,
+            )
+            return True
+        except Exception as e:
+            print(f"Error joining call: {str(e)}")
+            return False
 
     async def join_call(
         self,
