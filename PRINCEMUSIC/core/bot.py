@@ -22,39 +22,16 @@ class PRINCE(Client):
             self.name = self.me.first_name + " " + (self.me.last_name or "")
             self.username = self.me.username
             self.mention = self.me.mention
-            
-            # اول چک کنیم که LOGGER_ID تنظیم شده است
-            if not config.LOGGER_ID:
-                LOGGER(__name__).error("LOGGER_ID is not set in config!")
-                exit()
 
-            # سعی می‌کنیم اطلاعات گروه لاگ را دریافت کنیم
-            try:
-                log_group = await self.get_chat(config.LOGGER_ID)
-                LOGGER(__name__).info(f"Successfully connected to log group: {log_group.title}")
-            except Exception as e:
-                LOGGER(__name__).error(f"Failed to get log group info: {str(e)}")
-                exit()
-
-            # چک کردن دسترسی‌های ربات در گروه لاگ
-            try:
-                bot_member = await self.get_chat_member(config.LOGGER_ID, self.id)
-                if bot_member.status != ChatMemberStatus.ADMINISTRATOR:
-                    LOGGER(__name__).error("Bot needs to be admin in log group!")
-                    exit()
-            except Exception as e:
-                LOGGER(__name__).error(f"Failed to check bot permissions: {str(e)}")
-                exit()
-
-            # ارسال پیام شروع
+            # ارسال پیام به مالک
             try:
                 await self.send_message(
-                    chat_id=config.LOGGER_ID,
+                    chat_id=config.OWNER_ID,  # ارسال به OWNER_ID
                     text=f"<u><b>» {self.mention} ʙᴏᴛ sᴛᴀʀᴛᴇᴅ :</b></u>\n\nɪᴅ : <code>{self.id}</code>\nɴᴀᴍᴇ : {self.name}\nᴜsᴇʀɴᴀᴍᴇ : @{self.username}",
                 )
                 LOGGER(__name__).info(f"Music Bot Started as {self.name}")
             except Exception as e:
-                LOGGER(__name__).error(f"Failed to send start message: {str(e)}")
+                LOGGER(__name__).error(f"Failed to send start message to owner: {str(e)}")
                 exit()
 
         except Exception as e:
@@ -62,4 +39,13 @@ class PRINCE(Client):
             exit()
 
     async def stop(self):
-        await super().stop()
+        try:
+            # ارسال پیام توقف به مالک
+            await self.send_message(
+                chat_id=config.OWNER_ID,
+                text=f"<u><b>» {self.mention} ʙᴏᴛ sᴛᴏᴘᴘᴇᴅ</b></u>"
+            )
+        except Exception as e:
+            LOGGER(__name__).error(f"Failed to send stop message: {str(e)}")
+        finally:
+            await super().stop()
