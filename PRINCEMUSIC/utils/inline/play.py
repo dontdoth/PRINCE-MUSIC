@@ -53,7 +53,20 @@ def stream_markup_timer(_, chat_id, played, dur):
     else:
         bar = "—————————◉"
     buttons = [
-                [
+        [
+            InlineKeyboardButton("⏮ 30", callback_data=f"ADMIN Seek|-30|{chat_id}"),
+            InlineKeyboardButton("🔇 بی‌صدا", callback_data=f"ADMIN Mute|{chat_id}"),
+            InlineKeyboardButton("🔊 باصدا", callback_data=f"ADMIN Unmute|{chat_id}"),
+            InlineKeyboardButton("⏭ 30", callback_data=f"ADMIN Seek|+30|{chat_id}"),
+        ],
+        [
+            InlineKeyboardButton("📋 پلی‌لیست", callback_data="get_top_playlists"),
+            InlineKeyboardButton("📊 آمار ویس", callback_data="vcinfo"),
+        ],
+        [
+            InlineKeyboardButton("𝙍𝘼𝙉𝙂𝙀𝙍 ™", callback_data="logo"),
+        ],
+        [
             InlineKeyboardButton(
                 text=f"{played} {bar} {dur}",
                 callback_data="GetTimer",
@@ -65,7 +78,6 @@ def stream_markup_timer(_, chat_id, played, dur):
             InlineKeyboardButton(text="‣‣I", callback_data=f"ADMIN Skip|{chat_id}"),
             InlineKeyboardButton(text="▢", callback_data=f"ADMIN Stop|{chat_id}"),
         ],
-
         [InlineKeyboardButton(text=_["CLOSE_BUTTON"], callback_data="close")],
     ]
     return buttons
@@ -74,12 +86,30 @@ def stream_markup_timer(_, chat_id, played, dur):
 def stream_markup(_, chat_id):
     buttons = [
         [
+            InlineKeyboardButton("⏮ 30", callback_data=f"ADMIN Seek|-30|{chat_id}"),
+            InlineKeyboardButton("🔇 بی‌صدا", callback_data=f"ADMIN Mute|{chat_id}"),
+            InlineKeyboardButton("🔊 باصدا", callback_data=f"ADMIN Unmute|{chat_id}"),
+            InlineKeyboardButton("⏭ 30", callback_data=f"ADMIN Seek|+30|{chat_id}"),
+        ],
+        [
+            InlineKeyboardButton("📋 پلی‌لیست", callback_data="get_top_playlists"),
+            InlineKeyboardButton("📊 آمار ویس", callback_data="vcinfo"),
+        ],
+        [
+            InlineKeyboardButton("𝙍𝘼𝙉𝙂𝙀𝙍 ™", callback_data="logo"),
+        ],
+        [
+            InlineKeyboardButton(
+                text=f"{played} {bar} {dur}",
+                callback_data="GetTimer",
+            )
+        ],
+        [
             InlineKeyboardButton(text="▷", callback_data=f"ADMIN Resume|{chat_id}"),
             InlineKeyboardButton(text="II", callback_data=f"ADMIN Pause|{chat_id}"),
             InlineKeyboardButton(text="‣‣I", callback_data=f"ADMIN Skip|{chat_id}"),
             InlineKeyboardButton(text="▢", callback_data=f"ADMIN Stop|{chat_id}"),
         ],
-
         [InlineKeyboardButton(text=_["CLOSE_BUTTON"], callback_data="close")],
     ]
     return buttons
