@@ -55,9 +55,11 @@ def stream_markup_timer(_, chat_id, played, dur):
     buttons = [
         [
             InlineKeyboardButton("⏮ 30", callback_data=f"ADMIN Seek|-30|{chat_id}"),
+            InlineKeyboardButton("⏭ 30", callback_data=f"ADMIN Seek|+30|{chat_id}"),
+        ],
+        [
             InlineKeyboardButton("🔇 بی‌صدا", callback_data=f"ADMIN Mute|{chat_id}"),
             InlineKeyboardButton("🔊 باصدا", callback_data=f"ADMIN Unmute|{chat_id}"),
-            InlineKeyboardButton("⏭ 30", callback_data=f"ADMIN Seek|+30|{chat_id}"),
         ],
         [
             InlineKeyboardButton("📋 پلی‌لیست", callback_data="get_top_playlists"),
@@ -87,9 +89,11 @@ def stream_markup(_, chat_id):
     buttons = [
         [
             InlineKeyboardButton("⏮ 30", callback_data=f"ADMIN Seek|-30|{chat_id}"),
+            InlineKeyboardButton("⏭ 30", callback_data=f"ADMIN Seek|+30|{chat_id}"),
+        ],
+        [
             InlineKeyboardButton("🔇 بی‌صدا", callback_data=f"ADMIN Mute|{chat_id}"),
             InlineKeyboardButton("🔊 باصدا", callback_data=f"ADMIN Unmute|{chat_id}"),
-            InlineKeyboardButton("⏭ 30", callback_data=f"ADMIN Seek|+30|{chat_id}"),
         ],
         [
             InlineKeyboardButton("📋 پلی‌لیست", callback_data="get_top_playlists"),
@@ -113,7 +117,6 @@ def stream_markup(_, chat_id):
         [InlineKeyboardButton(text=_["CLOSE_BUTTON"], callback_data="close")],
     ]
     return buttons
-
 
 def playlist_markup(_, videoid, user_id, ptype, channel, fplay):
     buttons = [
