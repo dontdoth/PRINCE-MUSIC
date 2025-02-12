@@ -26,7 +26,7 @@ from config import BANNED_USERS, lyrical
 
 
 @app.on_message(
-   filters.command(["play", "vplay", "cplay", "cvplay", "playforce", "vplayforce", "cplayforce", "cvplayforce"] ,prefixes=["/", "!", "%", ",", "", ".", "@", "#"])
+   filters.command(["play","پخش", "vplay", "cplay", "cvplay", "playforce", "vplayforce", "cplayforce", "cvplayforce"] ,prefixes=["/", "!", "%", ",", "", ".", "@", "#"])
             
     & filters.group
     & ~BANNED_USERS
@@ -440,37 +440,40 @@ async def play_commnd(
 )
 async def volume_command(client, message: Message):
     if not message.from_user:
-        return await message.reply_text("» I can't recognize you.")
+        return await message.reply_text("» نمیتونم شما رو تشخیص بدم.")
         
+    # بررسی دسترسی ادمین
     if not (
-        message.from_user.id in BANNED_USERS
-        or message.from_user.id in config.OWNER_ID
-        or message.from_user.id in (
-            await app.get_chat_members(
-                message.chat.id, filter="administrators"
+        message.from_user.id in config.OWNER_ID
+        or (
+            await app.get_chat_member(
+                message.chat.id,
+                message.from_user.id
             )
-        ).users
+        ).status in ["administrator", "creator"]
     ):
         return await message.reply_text(
-            "» You need to be an admin with manage voice chat rights to do this."
+            "» شما باید ادمین با دسترسی مدیریت چت صوتی باشید."
         )
     
     if len(message.command) != 2:
-        return await message.reply_text("» Usage: /volume [1-200]")
+        current_volume = getattr(PRINCE, 'volume', 100)
+        return await message.reply_text(f"» صدای فعلی: {current_volume}%\n\nبرای تغییر صدا از دستور زیر استفاده کنید:\n/volume [1-200]")
     
     volume = message.command[1]
     if not volume.isdigit():
-        return await message.reply_text("» Please enter a number between 1-200")
+        return await message.reply_text("» لطفا یک عدد بین 1 تا 200 وارد کنید")
     
     volume = int(volume)
     if volume < 1 or volume > 200:
-        return await message.reply_text("» Please enter a number between 1-200")
+        return await message.reply_text("» لطفا یک عدد بین 1 تا 200 وارد کنید")
     
     try:
         await PRINCE.set_call_volume(message.chat.id, volume)
-        await message.reply_text(f"» Volume set to {volume}%")
+        await message.reply_text(f"» صدا روی {volume}% تنظیم شد")
     except Exception as e:
-        await message.reply_text(f"» Error: {str(e)}")
+        await message.reply_text(f"» خطا: {str(e)}")
+        
 @app.on_callback_query(filters.regex("MusicStream") & ~BANNED_USERS)
 @languageCB
 async def play_music(client, CallbackQuery, _):
@@ -700,3 +703,14 @@ async def slider_queries(client, CallbackQuery, _):
         return await CallbackQuery.edit_message_media(
             media=med, reply_markup=InlineKeyboardMarkup(buttons)
             )
+            
+            
+            
+            
+            
+            
+            
+            
+
+
+
