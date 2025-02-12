@@ -433,7 +433,44 @@ async def play_commnd(
                 )
                 return await play_logs(message, streamtype=f"URL Searched Inline")
 
-
+@app.on_message(
+    filters.command(["volume", "vol"])
+    & filters.group
+    & ~BANNED_USERS
+)
+async def volume_command(client, message: Message):
+    if not message.from_user:
+        return await message.reply_text("» I can't recognize you.")
+        
+    if not (
+        message.from_user.id in BANNED_USERS
+        or message.from_user.id in config.OWNER_ID
+        or message.from_user.id in (
+            await app.get_chat_members(
+                message.chat.id, filter="administrators"
+            )
+        ).users
+    ):
+        return await message.reply_text(
+            "» You need to be an admin with manage voice chat rights to do this."
+        )
+    
+    if len(message.command) != 2:
+        return await message.reply_text("» Usage: /volume [1-200]")
+    
+    volume = message.command[1]
+    if not volume.isdigit():
+        return await message.reply_text("» Please enter a number between 1-200")
+    
+    volume = int(volume)
+    if volume < 1 or volume > 200:
+        return await message.reply_text("» Please enter a number between 1-200")
+    
+    try:
+        await PRINCE.set_call_volume(message.chat.id, volume)
+        await message.reply_text(f"» Volume set to {volume}%")
+    except Exception as e:
+        await message.reply_text(f"» Error: {str(e)}")
 @app.on_callback_query(filters.regex("MusicStream") & ~BANNED_USERS)
 @languageCB
 async def play_music(client, CallbackQuery, _):
@@ -662,4 +699,4 @@ async def slider_queries(client, CallbackQuery, _):
         )
         return await CallbackQuery.edit_message_media(
             media=med, reply_markup=InlineKeyboardMarkup(buttons)
-        )
+            )
