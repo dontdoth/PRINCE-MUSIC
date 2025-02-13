@@ -126,7 +126,7 @@ def welcomepic(pic, user, chatname, id, uname, brightness_factor=1.3):
 
 @app.on_message(filters.command("welcome") & ~filters.private)
 async def auto_state(_, message):
-    usage = "**ᴜsᴀɢᴇ:**\n**⦿ /welcome [on|off]**"
+    usage = "**راهنمای استفاده:**\n**⦿ /welcome [on|off]**"
     if len(message.command) == 1:
         return await message.reply_text(usage)
     chat_id = message.chat.id
@@ -139,21 +139,20 @@ async def auto_state(_, message):
         state = message.text.split(None, 1)[1].strip().lower()
         if state == "off":
             if A:
-                await message.reply_text("**ᴡᴇʟᴄᴏᴍᴇ ɴᴏᴛɪғɪᴄᴀᴛɪᴏɴ ᴀʟʀᴇᴀᴅʏ ᴅɪsᴀʙʟᴇᴅ !**")
+                await message.reply_text("**پیام خوش‌آمدگویی از قبل غیرفعال است!**")
             else:
                 await wlcm.add_wlcm(chat_id)
-                await message.reply_text(f"**ᴅɪsᴀʙʟᴇᴅ ᴡᴇʟᴄᴏᴍᴇ ɴᴏᴛɪғɪᴄᴀᴛɪᴏɴ ɪɴ** {message.chat.title}")
+                await message.reply_text(f"**پیام خوش‌آمدگویی در {message.chat.title} غیرفعال شد**")
         elif state == "on":
             if not A:
-                await message.reply_text("**ᴇɴᴀʙʟᴇ ᴡᴇʟᴄᴏᴍᴇ ɴᴏᴛɪғɪᴄᴀᴛɪᴏɴ.**")
+                await message.reply_text("**پیام خوش‌آمدگویی فعال است.**")
             else:
                 await wlcm.rm_wlcm(chat_id)
-                await message.reply_text(f"**ᴇɴᴀʙʟᴇᴅ ᴡᴇʟᴄᴏᴍᴇ ɴᴏᴛɪғɪᴄᴀᴛɪᴏɴ ɪɴ ** {message.chat.title}")
+                await message.reply_text(f"**پیام خوش‌آمدگویی در {message.chat.title} فعال شد**")
         else:
             await message.reply_text(usage)
     else:
-        await message.reply("**sᴏʀʀʏ ᴏɴʟʏ ᴀᴅᴍɪɴs ᴄᴀɴ ᴇɴᴀʙʟᴇ ᴡᴇʟᴄᴏᴍᴇ ɴᴏᴛɪғɪᴄᴀᴛɪᴏɴ!**")
-
+        await message.reply("**متأسفانه فقط ادمین‌ها می‌توانند پیام خوش‌آمدگویی را فعال کنند!**")
 
 
 @app.on_chat_member_updated(filters.group, group=-3)
@@ -166,9 +165,7 @@ async def greet_new_member(_, member: ChatMemberUpdated):
 
     user = member.new_chat_member.user if member.new_chat_member else member.from_user
 
-    # Add the modified condition here
     if member.new_chat_member and not member.old_chat_member and member.new_chat_member.status != "kicked":
-
         try:
             pic = await app.download_media(
                 user.photo.big_file_id, file_name=f"pp{user.id}.png"
@@ -184,26 +181,26 @@ async def greet_new_member(_, member: ChatMemberUpdated):
             welcomeimg = welcomepic(
                 pic, user.first_name, member.chat.title, user.id, user.username
             )
-            button_text = "๏ ᴠɪᴇᴡ ɴᴇᴡ ᴍᴇᴍʙᴇʀ ๏"
-            add_button_text = "✙ ᴋɪᴅɴᴀᴘ ᴍᴇ ✙"
+            button_text = "👀 مشاهده کاربر جدید"
+            add_button_text = "➕ افزودن من به گروه"
             deep_link = f"tg://openmessage?user_id={user.id}"
             add_link = f"https://t.me/{app.username}?startgroup=true"
             temp.MELCOW[f"welcome-{member.chat.id}"] = await app.send_photo(
                 member.chat.id,
                 photo=welcomeimg,
                 caption=f"""
-**⎊─────☵ ᴡᴇʟᴄᴏᴍᴇ ☵─────⎊**
+**⎊─────☵ خوش آمدید ☵─────⎊**
 
 **▬▭▬▭▬▭▬▭▬▭▬▭▬▭▬**
 
-**☉ ɴᴀᴍᴇ ⧽** {user.mention}
-**☉ ɪᴅ ⧽** `{user.id}`
-**☉ ᴜ_ɴᴀᴍᴇ ⧽** @{user.username}
-**☉ ᴛᴏᴛᴀʟ ᴍᴇᴍʙᴇʀs ⧽** {count}
+**☉ نام ⧽** {user.mention}
+**☉ شناسه ⧽** `{user.id}`
+**☉ نام کاربری ⧽** @{user.username}
+**☉ تعداد اعضا ⧽** {count}
 
 **▬▭▬▭▬▭▬▭▬▭▬▭▬▭▬**
 
-**⎉──────▢✭ 侖 ✭▢──────⎉**
+**⎉──────▢✭ 🌟 ✭▢──────⎉**
 """,
                 reply_markup=InlineKeyboardMarkup([
                     [InlineKeyboardButton(button_text, url=deep_link)],
@@ -218,7 +215,7 @@ async def greet_new_member(_, member: ChatMemberUpdated):
 async def add_all(client, message):
     command_parts = message.text.split(" ")
     if len(command_parts) != 2:
-        await message.reply("**⚠️ ɪɴᴠᴀʟɪᴅ ᴄᴏᴍᴍᴀɴᴅ ғᴏʀᴍᴀᴛ. ᴘʟᴇᴀsᴇ ᴜsᴇ ʟɪᴋᴇ » `/gadd bot username`**")
+        await message.reply("**⚠️ فرمت دستور نامعتبر است. لطفاً به این شکل استفاده کنید » `/gadd نام_کاربری_ربات`**")
         return
 
     bot_username = command_parts[1]
@@ -228,7 +225,7 @@ async def add_all(client, message):
         app_id = bot.id
         done = 0
         failed = 0
-        lol = await message.reply("🔄 **ᴀᴅᴅɪɴɢ ɢɪᴠᴇɴ ʙᴏᴛ ɪɴ ᴀʟʟ ᴄʜᴀᴛs!**")
+        lol = await message.reply("🔄 **در حال افزودن ربات به تمام گروه‌ها!**")
 
         async for dialog in userbot.get_dialogs():
             if dialog.chat.id == -1002006121442:
@@ -237,17 +234,17 @@ async def add_all(client, message):
                 await userbot.add_chat_members(dialog.chat.id, app_id)
                 done += 1
                 await lol.edit(
-                    f"**🔂 ᴀᴅᴅɪɴɢ {bot_username}**\n\n**➥ ᴀᴅᴅᴇᴅ ɪɴ {done} ᴄʜᴀᴛs ✅**\n**➥ ғᴀɪʟᴇᴅ ɪɴ {failed} ᴄʜᴀᴛs ❌**\n\n**➲ ᴀᴅᴅᴇᴅ ʙʏ»** @{userbot.username}"
+                    f"**🔂 در حال افزودن {bot_username}**\n\n**➥ اضافه شده به {done} گروه ✅**\n**➥ ناموفق در {failed} گروه ❌**\n\n**➲ اضافه شده توسط»** @{userbot.username}"
                 )
             except Exception as e:
                 failed += 1
                 await lol.edit(
-                    f"**🔂 ᴀᴅᴅɪɴɢ {bot_username}**\n\n**➥ ᴀᴅᴅᴇᴅ ɪɴ {done} ᴄʜᴀᴛs ✅**\n**➥ ғᴀɪʟᴇᴅ ɪɴ {failed} ᴄʜᴀᴛs ❌**\n\n**➲ ᴀᴅᴅɪɴɢ ʙʏ»** @{userbot.username}"
+                    f"**🔂 در حال افزودن {bot_username}**\n\n**➥ اضافه شده به {done} گروه ✅**\n**➥ ناموفق در {failed} گروه ❌**\n\n**➲ در حال افزودن توسط»** @{userbot.username}"
                 )
-            await asyncio.sleep(3)  # Adjust sleep time based on rate limits
+            await asyncio.sleep(3)
 
         await lol.edit(
-            f"**➻ {bot_username} ʙᴏᴛ ᴀᴅᴅᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ🎉**\n\n**➥ ᴀᴅᴅᴇᴅ ɪɴ {done} ᴄʜᴀᴛs ✅**\n**➥ ғᴀɪʟᴇᴅ ɪɴ {failed} ᴄʜᴀᴛs ❌**\n\n**➲ ᴀᴅᴅᴇᴅ ʙʏ»** @{userbot.username}"
+            f"**➻ ربات {bot_username} با موفقیت اضافه شد 🎉**\n\n**➥ اضافه شده به {done} گروه ✅**\n**➥ ناموفق در {failed} گروه ❌**\n\n**➲ اضافه شده توسط»** @{userbot.username}"
         )
     except Exception as e:
-        await message.reply(f"Error: {str(e)}")
+        await message.reply(f"خطا: {str(e)}")
