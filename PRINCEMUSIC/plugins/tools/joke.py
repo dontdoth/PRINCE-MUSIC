@@ -2,11 +2,23 @@ import requests
 from PRINCEMUSIC import app
 from pyrogram import Client, filters
 
-JOKE_API_ENDPOINT = 'https://hindi-jokes-api.onrender.com/jokes?api_key=1a6d440e3f5971eecebceee818c2'
+JOKE_API_ENDPOINT = 'https://open.wiki-api.ir/apis-1/4Jok?page=500'
 
 @app.on_message(filters.command("hjoke"))
 async def joke(_, message):
-    response = requests.get(JOKE_API_ENDPOINT)
-    r = response.json()
-    joke_text = r['jokeContent']
-    await message.reply_text(joke_text)
+    try:
+        response = requests.get(JOKE_API_ENDPOINT)
+        if response.status_code == 200:
+            jokes_data = response.json()
+            # فرض می‌کنیم API یک لیست از جوک‌ها برمی‌گرداند
+            if jokes_data and len(jokes_data) > 0:
+                # انتخاب تصادفی یک جوک از لیست
+                import random
+                joke_text = random.choice(jokes_data)['text']  # یا هر کلید دیگری که API برمی‌گرداند
+                await message.reply_text(joke_text)
+            else:
+                await message.reply_text("متاسفانه جوکی یافت نشد!")
+        else:
+            await message.reply_text("خطا در دریافت جوک. لطفا بعداً تلاش کنید.")
+    except Exception as e:
+        await message.reply_text(f"خطایی رخ داد: {str(e)}")
