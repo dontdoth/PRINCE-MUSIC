@@ -2,7 +2,7 @@ import requests
 from PRINCEMUSIC import app
 from pyrogram import Client, filters
 
-JOKE_API_ENDPOINT = 'https://open.wiki-api.ir/apis-1/4Jok?page=500'
+JOKE_API_ENDPOINT = 'https://open.wiki-api.ir/apis-1/4Jok'
 
 @app.on_message(filters.command("hjoke"))
 async def joke(_, message):
