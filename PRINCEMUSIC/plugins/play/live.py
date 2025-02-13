@@ -156,7 +156,28 @@ async def stream_callback(client, callback_query):
             "play_2": "🎵 پردازش درخواست در چنل...",
             "play_3": "خطا در پردازش استریم!",
             "general_2": "خطای عمومی: {0}",
-            "playcb_1": "این دکمه برای شما نیست!"
+            "playcb_1": "این دکمه برای شما نیست!",
+            "str_1": "در حال پردازش...",
+            "str_2": "در حال استریم...",
+            "str_3": "استریم آغاز شد",
+            "stream_1": "استریم یافت شد",
+            "stream_2": "پردازش استریم",
+            "stream_3": "استریم آماده پخش",
+            "stream_4": "پخش زنده آغاز شد",
+            "admin_1": "شما ادمین نیستید",
+            "admin_2": "فقط ادمین‌ها",
+            "admin_3": "مدیریت پخش",
+            "processing": "لطفا صبر کنید...",
+            "searching": "در حال جستجو...",
+            "streaming": "در حال پخش...",
+            "playing": "در حال اجرا...",
+            "track_1": "عنوان: {0}",
+            "track_2": "مدت: {0}",
+            "track_3": "درخواست: {0}",
+            "queue_1": "در صف پخش",
+            "queue_2": "بعدی در صف",
+            "queue_3": "اضافه به صف",
+            "queue_4": "صف خالی است"
         }
         
         await stream(
@@ -164,7 +185,7 @@ async def stream_callback(client, callback_query):
             mystic,
             user_id,
             details,
-            chat_id,  # فقط یکبار chat_id را ارسال می‌کنیم
+            chat_id,
             user_name=callback_query.from_user.first_name,
             original_chat_id=chat_id,
             video=True if stream_type != "music" else False,
@@ -175,6 +196,9 @@ async def stream_callback(client, callback_query):
     except Exception as e:
         await mystic.edit_text(f"❌ خطا در پخش: {str(e)}")
         return
+    
+    await callback_query.message.delete()
+    await mystic.delete()
     
     await callback_query.message.delete()
     await mystic.delete()
