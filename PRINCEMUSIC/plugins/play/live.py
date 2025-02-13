@@ -135,6 +135,7 @@ async def stream_callback(client, callback_query):
         }[stream_type]
         
         stream_url = channels_dict[channel_id]
+        chat_id = callback_query.message.chat.id
         
         mystic = await callback_query.message.reply_text(
             f"🔄 در حال پردازش پخش..."
@@ -163,10 +164,9 @@ async def stream_callback(client, callback_query):
             mystic,
             user_id,
             details,
-            callback_query.message.chat.id,
+            chat_id,  # فقط یکبار chat_id را ارسال می‌کنیم
             user_name=callback_query.from_user.first_name,
-            chat_id=callback_query.message.chat.id,
-            original_chat_id=callback_query.message.chat.id,
+            original_chat_id=chat_id,
             video=True if stream_type != "music" else False,
             streamtype="live",
             forceplay=True
@@ -178,7 +178,6 @@ async def stream_callback(client, callback_query):
     
     await callback_query.message.delete()
     await mystic.delete()
-
 @app.on_callback_query(filters.regex("close_panel"))
 async def close_panel(client, callback_query):
     await callback_query.message.delete()
