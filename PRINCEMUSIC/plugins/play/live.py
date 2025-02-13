@@ -47,8 +47,7 @@ GEM_CHANNELS = {
     "gem_fit": "http://eja.tv/?2bc72dff7e9d05f2f263f797cb8dbf6ce9b081133d9525ec115f6a8db0d446b9"
 }
 
-@app.on_message(filters.command(["panel", "پنل"]))
-async def panel_command(client, message):
+def get_main_panel():
     buttons = [
         [
             InlineKeyboardButton("📺 تلویزیون", callback_data="panel_tv"),
@@ -62,16 +61,27 @@ async def panel_command(client, message):
             InlineKeyboardButton("❌ بستن", callback_data="close_panel")
         ]
     ]
-    
+    return InlineKeyboardMarkup(buttons)
+
+@app.on_message(filters.command(["panel", "پنل"]))
+async def panel_command(client, message):
     await message.reply_text(
         "**🎯 به پنل پخش زنده خوش آمدید**\n\n"
         "📍 لطفا یکی از گزینه‌های زیر را انتخاب کنید:",
-        reply_markup=InlineKeyboardMarkup(buttons)
+        reply_markup=get_main_panel()
     )
 
 @app.on_callback_query(filters.regex("^panel_"))
 async def panel_callback(client, callback_query):
     data = callback_query.data.split("_")[1]
+    
+    if data == "main":
+        await callback_query.edit_message_text(
+            "**🎯 به پنل پخش زنده خوش آمدید**\n\n"
+            "📍 لطفا یکی از گزینه‌های زیر را انتخاب کنید:",
+            reply_markup=get_main_panel()
+        )
+        return
     
     if data == "tv":
         channels_dict = TV_CHANNELS
@@ -139,14 +149,24 @@ async def stream_callback(client, callback_query):
             "channel": True,
             "thumb": None
         }
+
+        language_dict = {
+            "play_1": "🎵 پردازش درخواست...",
+            "play_2": "🎵 پردازش درخواست در چنل...",
+            "play_3": "خطا در پردازش استریم!",
+            "general_2": "خطای عمومی: {0}",
+            "playcb_1": "این دکمه برای شما نیست!"
+        }
         
         await stream(
+            language_dict,
             mystic,
             user_id,
             details,
             callback_query.message.chat.id,
             user_name=callback_query.from_user.first_name,
             chat_id=callback_query.message.chat.id,
+            original_chat_id=callback_query.message.chat.id,
             video=True if stream_type != "music" else False,
             streamtype="live",
             forceplay=True
@@ -158,28 +178,6 @@ async def stream_callback(client, callback_query):
     
     await callback_query.message.delete()
     await mystic.delete()
-
-@app.on_callback_query(filters.regex("panel_main"))
-async def return_to_main_panel(client, callback_query):
-    buttons = [
-        [
-            InlineKeyboardButton("📺 تلویزیون", callback_data="panel_tv"),
-            InlineKeyboardButton("🎵 موزیک", callback_data="panel_music")
-        ],
-        [
-            InlineKeyboardButton("🎬 فیلم و سریال", callback_data="panel_movies"),
-            InlineKeyboardButton("💎 شبکه‌های جم", callback_data="panel_gem")
-        ],
-        [
-            InlineKeyboardButton("❌ بستن", callback_data="close_panel")
-        ]
-    ]
-    
-    await callback_query.edit_message_text(
-        "**🎯 به پنل پخش زنده خوش آمدید**\n\n"
-        "📍 لطفا یکی از گزینه‌های زیر را انتخاب کنید:",
-        reply_markup=InlineKeyboardMarkup(buttons)
-    )
 
 @app.on_callback_query(filters.regex("close_panel"))
 async def close_panel(client, callback_query):
