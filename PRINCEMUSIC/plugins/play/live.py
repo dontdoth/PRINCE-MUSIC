@@ -101,7 +101,6 @@ async def panel_callback(client, callback_query):
             ])
         title = "🎬 پخش فیلم و سریال"
     
-    # دکمه برگشت به منوی اصلی
     buttons.append([
         InlineKeyboardButton("🏠 بازگشت به منو", callback_data="panel_main"),
         InlineKeyboardButton("❌ بستن", callback_data="close_panel")
@@ -153,8 +152,17 @@ async def stream_callback(client, callback_query):
             "channel": True,
         }
         
+        # ایجاد یک دیکشنری برای متن‌های مورد نیاز
+        language_dict = {
+            "play_1": "🎵 پردازش درخواست...",
+            "play_2": "🎵 پردازش درخواست در چنل...",
+            "play_3": "خطا در پردازش استریم!",
+            "general_2": "خطای عمومی: {0}",
+            "playcb_1": "این دکمه برای شما نیست!"
+        }
+        
         await stream(
-            _,
+            language_dict,  # پاس دادن دیکشنری زبان
             mystic,
             user_id,
             details,
