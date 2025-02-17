@@ -1,170 +1,108 @@
+import gc
 from pyrogram import Client
-from dotenv import load_dotenv
-from os import getenv
 from ..logging import LOGGER
 import config
-
-load_dotenv()
-
-BOT_TOKEN = getenv("BOT_TOKEN", "")
-MONGO_DB_URI = getenv("MONGO_DB_URI", "")
-STRING_SESSION = getenv("STRING_SESSION", "")
+import asyncio
 
 assistants = []
 assistantids = []
 
 class Userbot(Client):
     def __init__(self):
-        self.one = Client(
-            name="PRINCEAss1",
-            api_id=config.API_ID,
-            api_hash=config.API_HASH,
-            session_string=str(config.STRING1),
-            no_updates=True,
-        )
-        self.two = Client(
-            name="PRINCEAss2",
-            api_id=config.API_ID,
-            api_hash=config.API_HASH,
-            session_string=str(config.STRING2),
-            no_updates=True,
-        )
-        self.three = Client(
-            name="PRINCEAss3",
-            api_id=config.API_ID,
-            api_hash=config.API_HASH,
-            session_string=str(config.STRING3),
-            no_updates=True,
-        )
-        self.four = Client(
-            name="PRINCEAss4",
-            api_id=config.API_ID,
-            api_hash=config.API_HASH,
-            session_string=str(config.STRING4),
-            no_updates=True,
-        )
-        self.five = Client(
-            name="PRINCEAss5",
-            api_id=config.API_ID,
-            api_hash=config.API_HASH,
-            session_string=str(config.STRING5),
-            no_updates=True,
-        )
+        self._clients = {}
+        self._active_calls = set()
+        self._memory_usage = 0
+
+    async def _start_client(self, name, session, number):
+        try:
+            client = Client(
+                name=name,
+                api_id=config.API_ID,
+                api_hash=config.API_HASH,
+                session_string=str(session),
+                no_updates=True,
+                in_memory=True
+            )
+            
+            await client.start()
+            
+            try:
+                await client.join_chat("atrinmusic_tm")
+                await client.join_chat("atrinmusic_tm1")
+            except Exception as e:
+                LOGGER(__name__).warning(f"Failed to join channels for {name}: {e}")
+            
+            try:
+                await client.send_message(config.LOGGER_ID, f"Assistant {number} Started")
+            except Exception as e:
+                LOGGER(__name__).error(f"Failed to send startup message for {name}: {e}")
+            
+            client.id = client.me.id
+            client.name = client.me.mention
+            client.username = client.me.username
+            
+            assistants.append(number)
+            assistantids.append(client.id)
+            
+            LOGGER(__name__).info(f"Assistant {number} Started as {client.name}")
+            return client
+            
+        except Exception as e:
+            LOGGER(__name__).error(f"Failed to start {name}: {e}")
+            return None
 
     async def start(self):
-        LOGGER(__name__).info(f"Starting Assistants...")
-        if config.STRING1:
-            await self.one.start()
-            try:
-                await self.one.join_chat("atrinmusic_tm")
-                await self.one.join_chat("atrinmusic_tm1")
-            except:
-                pass
-            assistants.append(1)
-            try:
-                await self.one.send_message(config.LOGGER_ID, "Assistant Started !")
-            except:
-                LOGGER(__name__).error(
-                    "Assistant Account 1 has failed to access the log Group. Make sure that you have added your assistant to your log group and promoted as admin!"
-                )
-            self.one.id = self.one.me.id
-            self.one.name = self.one.me.mention
-            self.one.username = self.one.me.username
-            assistantids.append(self.one.id)
-            LOGGER(__name__).info(f"Assistant Started as {self.one.name}")
-
-        if config.STRING2:
-            await self.two.start()
-            try:
-                await self.two.join_chat("atrinmusic_tm")
-                await self.two.join_chat("atrinmusic_tm1")
-            except:
-                pass
-            assistants.append(2)
-            try:
-                await self.two.send_message(config.LOGGER_ID, "Assistant Started")
-            except:
-                LOGGER(__name__).error(
-                    "Assistant Account 2 has failed to access the log Group. Make sure that you have added your assistant to your log group and promoted as admin!"
-                )
-            self.two.id = self.two.me.id
-            self.two.name = self.two.me.mention
-            self.two.username = self.two.me.username
-            assistantids.append(self.two.id)
-            LOGGER(__name__).info(f"Assistant Two Started as {self.two.name}")
-
-        if config.STRING3:
-            await self.three.start()
-            try:
-                await self.three.join_chat("atrinmusic_tm")
-                await self.three.join_chat("atrinmusic_tm1")
-            except:
-                pass
-            assistants.append(3)
-            try:
-                await self.three.send_message(config.LOGGER_ID, "Assistant Started")
-            except:
-                LOGGER(__name__).error(
-                    "Assistant Account 3 has failed to access the log Group. Make sure that you have added your assistant to your log group and promoted as admin!"
-                )
-            self.three.id = self.three.me.id
-            self.three.name = self.three.me.mention
-            self.three.username = self.three.me.username
-            assistantids.append(self.three.id)
-            LOGGER(__name__).info(f"Assistant Three Started as {self.three.name}")
-
-        if config.STRING4:
-            await self.four.start()
-            try:
-                await self.four.join_chat("atrinmusic_tm")
-                await self.four.join_chat("atrinmusic_tm1")
-            except:
-                pass
-            assistants.append(4)
-            try:
-                await self.four.send_message(config.LOGGER_ID, "Assistant Started")
-            except:
-                LOGGER(__name__).error(
-                    "Assistant Account 4 has failed to access the log Group. Make sure that you have added your assistant to your log group and promoted as admin!"
-                )
-            self.four.id = self.four.me.id
-            self.four.name = self.four.me.mention
-            self.four.username = self.four.me.username
-            assistantids.append(self.four.id)
-            LOGGER(__name__).info(f"Assistant Four Started as {self.four.name}")
-
-        if config.STRING5:
-            await self.five.start()
-            try:
-                await self.five.join_chat("atrinmusic_tm")
-                await self.five.join_chat("atrinmusic_tm1")
-            except:
-                pass
-            assistants.append(5)
-            try:
-                await self.five.send_message(config.LOGGER_ID, "Assistant Started")
-            except:
-                LOGGER(__name__).error(
-                    "Assistant Account 5 has failed to access the log Group. Make sure that you have added your assistant to your log group and promoted as admin!"
-                )
-            self.five.id = self.five.me.id
-            self.five.name = self.five.me.mention
-            self.five.username = self.five.me.username
-            assistantids.append(self.five.id)
-            LOGGER(__name__).info(f"Assistant Five Started as {self.five.name}")
+        LOGGER(__name__).info("Starting Assistants...")
+        
+        sessions = [
+            ("PRINCEAss1", config.STRING1, 1),
+            ("PRINCEAss2", config.STRING2, 2),
+            ("PRINCEAss3", config.STRING3, 3),
+            ("PRINCEAss4", config.STRING4, 4),
+            ("PRINCEAss5", config.STRING5, 5)
+        ]
+        
+        for name, session, number in sessions:
+            if session:
+                client = await self._start_client(name, session, number)
+                if client:
+                    self._clients[number] = client
+        
+        if not self._clients:
+            LOGGER(__name__).error("No assistants could be started!")
+            return False
+            
+        return True
 
     async def stop(self):
-        LOGGER(__name__).info(f"Stopping Assistants...")
-        try:
-            if config.STRING1:
-                await self.one.stop()
-            if config.STRING2:
-                await self.two.stop()
-            if config.STRING3:
-                await self.three.stop()
-            if config.STRING4:
-                await self.four.stop()
-            if config.STRING5:
-                await self.five.stop()
-        except:
-            pass
+        LOGGER(__name__).info("Stopping Assistants...")
+        for client in self._clients.values():
+            try:
+                await client.stop()
+            except Exception as e:
+                LOGGER(__name__).error(f"Error stopping client: {e}")
+        
+        self._clients.clear()
+        gc.collect()
+
+    async def cleanup(self):
+        """Periodic cleanup of resources"""
+        while True:
+            try:
+                # Clear inactive calls
+                current_time = asyncio.get_event_loop().time()
+                inactive_calls = {
+                    call for call in self._active_calls 
+                    if current_time - call.last_activity > 300  # 5 minutes
+                }
+                for call in inactive_calls:
+                    await call.stop()
+                self._active_calls -= inactive_calls
+
+                # Force garbage collection
+                gc.collect()
+
+                await asyncio.sleep(config.CLEANUP_INTERVAL)
+            except Exception as e:
+                LOGGER(__name__).error(f"Cleanup error: {e}")
+                await asyncio.sleep(60)
