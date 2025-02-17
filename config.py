@@ -22,6 +22,10 @@ BOT_NAME = getenv("BOT_NAME" , "PRINCE")
 # ---------------------------------------------------------
 ASSUSERNAME = getenv("ASSUSERNAME" , "Samira hashmi")
 # ---------------------------------------------------------
+MEMORY_LIMIT = 500  # MB
+MAX_PLAYLIST_SIZE = 50
+MAX_CACHE_SIZE = 100
+CLEANUP_INTERVAL = 600  # seconds
 
 
 #---------------------------------------------------------------
