@@ -26,7 +26,9 @@ MEMORY_LIMIT = 500  # MB
 MAX_PLAYLIST_SIZE = 50
 MAX_CACHE_SIZE = 100
 CLEANUP_INTERVAL = 600  # seconds
-
+# Dispatcher settings
+WORKER_COUNT = 4  # تعداد worker ها برای dispatcher
+MAX_UPDATES_IN_QUEUE = 1000  # حداکثر تعداد آپدیت‌های در صف
 
 #---------------------------------------------------------------
 #---------------------------------------------------------------
