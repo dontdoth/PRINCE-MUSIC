@@ -1,35 +1,38 @@
 from PRINCEMUSIC import app 
-import requests as r
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup 
 from pyrogram import filters 
+import requests
 
 API_URL = "https://sugoi-api.vercel.app/search"
 
-@app.on_message(filters.command("bingsearch"))
-async def bing_search(michiko, message):
+@app.on_message(filters.command("جستجو"))
+async def bing_search(_, message):
+    if len(message.command) == 1:
+        return await message.reply_text("لطفا کلمه مورد نظر برای جستجو را وارد کنید.")
+
     try:
-        if len(message.command) == 1:
-            await message.reply_text("Please provide a keyword to search.")
-            return
+        keyword = " ".join(message.command[1:])
+        response = requests.get(API_URL, params={"keyword": keyword})
+        
+        if not response.ok:
+            return await message.reply_text("متأسفانه مشکلی در جستجو پیش آمد.")
 
-        keyword = " ".join(
-            message.command[1:]
-        )  # Assuming the keyword is passed as arguments
-        params = {"keyword": keyword}
-        response = r.get(API_URL, params=params)
+        results = response.json()
+        if not results:
+            return await message.reply_text("نتیجه‌ای یافت نشد.")
 
-        if response.status_code == 200:
-            results = response.json()
-            if not results:
-                await message.reply_text("No results found.")
-            else:
-                message_text = ""
-                for result in results[:7]:
-                    title = result.get("\x74\x69\x74\x6C\x65", "")
-                    link = result.get("\x6C\x69\x6E\x6B", "")
-                    message_text += f"{title}\n{link}\n\n"
-                await message.reply_text(message_text.strip())
-        else:
-            await message.reply_text("Sorry, something went wrong with the search.")
+        keyboard = []
+        for i, result in enumerate(results[:5], start=1):
+            title = result.get("title", "بدون عنوان")
+            link = result.get("link", "")
+            keyboard.append([InlineKeyboardButton(f"{i}. {title[:30]}...", url=link)])
+            
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        await message.reply_text(
+            f"🔎 نتایج جستجو برای: **{keyword}**\n\n"
+            "برای مشاهده نتایج روی لینک‌ها کلیک کنید:",
+            reply_markup=reply_markup
+        )
+
     except Exception as e:
-        await message.reply_text(f"An error occurred: {str(e)}")
+        await message.reply_text(f"خطایی رخ داد: {str(e)}")
